@@ -2,8 +2,6 @@ import openai
 import pickle
 import replicate
 from fastapi import FastAPI, File, UploadFile, Form
-from pydantic import BaseModel
-from typing import Optional
 import cv2
 import numpy as np
 
@@ -12,17 +10,25 @@ app = FastAPI()
 
 
 @app.post("/answer_question/")
-async def answer_question_endpoint(question: str = Form(...), user_id: str = Form(...), image: UploadFile = File(...)):
-    image_path = f"/storage/{user_id}.jpg"
+async def answer_question_endpoint(
+    question: str = Form(...),
+    user_id: str = Form(...),
+    image: UploadFile = File(...),
+):
+    image_path = f"storage/{user_id}.jpg" # path to the image
+    # read the image data
     image_data = np.frombuffer(await image.read(), np.uint8)
+    # decode the image data
     image_np = cv2.imdecode(image_data, cv2.IMREAD_COLOR)
+    # save the image to the storage folder
     cv2.imwrite(image_path, image_np)
+    # answer the question
     answer_str = answer_question(question, image_path, user_id)
     return {"answer": answer_str}
 
 
 def get_chat_log_path(user_id):
-    return f"chat_logs/{user_id}_chat_log.pkl"
+    return f"chat_logs/{user_id}.pkl"
 
 
 def image_related(chat_log_inline):
@@ -114,6 +120,10 @@ def answer_question(question, image_path, user_id):
             {"role": "user", "content": f"You are Shigeo, an AI assistant designed to assist people with visual impairments. At times, you may require visual context, access to the user's camera, or information about the surroundings to answer some of the questions. Given the following dialogue with the user,\n\n{chat_log_inline}\nplease write reply for the last message. Write only the reply without quotation marks and nothing else. Begin."},
         ],
     )["choices"][0]["message"]["content"]
+        
+    # remove quotation marks from the beginning and end of the answer
+    if answer.startswith('"') and answer.endswith('"'):
+        answer = answer[1:-1]
 
     # append the answer to the chat-log
     chat_log.append((question, answer))
@@ -127,9 +137,3 @@ def answer_question(question, image_path, user_id):
         pickle.dump(chat_log, f)
 
     return answer
-
-if __name__ == "__main__":
-    while True:
-        q = input("User: ")
-        answer = answer_question(q, "./image.jpg", "assel")
-        print(answer)
