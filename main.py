@@ -1,12 +1,19 @@
+import os
 import openai
 import pickle
 import replicate
-from fastapi import FastAPI, File, UploadFile, Form
 import cv2
 import numpy as np
+from fastapi import FastAPI, File, UploadFile, Form
+openai.api_key = os.environ["OPENAI_API_KEY"] # set the OpenAI API key
 
 
 app = FastAPI()
+
+
+@app.get("/")
+async def root_endpoint():
+    return {"message": "Server is running"}
 
 
 @app.post("/answer_question/")
