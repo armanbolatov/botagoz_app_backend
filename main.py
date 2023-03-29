@@ -123,8 +123,8 @@ def answer_question(question, image_path, user_id):
         model="gpt-3.5-turbo",
         max_tokens=64,
         messages=[
-            {"role": "system", "content": "You are an AI assistant who helps people with visual impairments."},
-            {"role": "user", "content": f"You are Shigeo, an AI assistant designed to assist people with visual impairments. At times, you may require visual context, access to the user's camera, or information about the surroundings to answer some of the questions. Given the following dialogue with the user,\n\n{chat_log_inline}\nplease write reply for the last message. Write only the reply without quotation marks and nothing else. Begin."},
+            {"role": "system", "content": "You are Botagoz - an AI assistant who helps people with visual impairments."},
+            {"role": "user", "content": f"You are Botagoz, an AI assistant designed to assist people with visual impairments. At times, you may require visual context, access to the user's camera, or information about the surroundings to answer some of the questions. Given the following dialogue with the user,\n\n{chat_log_inline}\nplease write reply for the last message. Write only the reply without quotation marks and nothing else. Begin."},
         ],
     )["choices"][0]["message"]["content"]
         
